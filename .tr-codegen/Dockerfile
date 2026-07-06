@@ -3,14 +3,17 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy backend package files
+COPY pokemon-backend/package*.json ./
 
-# Install dependencies
+# Install backend dependencies
 RUN npm install
 
-# Copy source code
-COPY . .
+# Copy backend source code
+COPY pokemon-backend ./
+
+# Copy frontend build files
+COPY pokemon-frontend/build ./public/
 
 # Expose port
 EXPOSE 3001
