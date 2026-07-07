@@ -1,16 +1,32 @@
+# Stage 1: Build frontend
+FROM node:20-alpine AS builder
+
+WORKDIR /builder
+
+# Copy frontend and backend code
+COPY pokemon-frontend ./frontend
+COPY pokemon-backend ./backend
+
+# Build frontend
+RUN cd frontend && npm install && npm run build
+
+# Stage 2: Runtime - Express backend serving frontend
 FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy built frontend from builder stage
+COPY --from=builder /builder/frontend/build ./public
+
+# Copy backend package files
+COPY pokemon-backend/package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy source code
-COPY . .
+# Copy backend source code
+COPY pokemon-backend .
 
 # Expose port
 EXPOSE 3001

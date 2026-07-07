@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
+app.use(express.static('public'));
 app.use(express.json());
 
 // Mock Pokemon data
@@ -15,6 +16,7 @@ const mockPokemons = [
     name: 'Pikachu',
     type: ['Electric'],
     legendary: false,
+    color: 'Yellow',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'
   },
   {
@@ -22,6 +24,7 @@ const mockPokemons = [
     name: 'Charizard',
     type: ['Fire', 'Flying'],
     legendary: false,
+    color: 'Red',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png'
   },
   {
@@ -29,6 +32,7 @@ const mockPokemons = [
     name: 'Blastoise',
     type: ['Water'],
     legendary: false,
+    color: 'Blue',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png'
   },
   {
@@ -36,6 +40,7 @@ const mockPokemons = [
     name: 'Venusaur',
     type: ['Grass', 'Poison'],
     legendary: false,
+    color: 'Green',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png'
   },
   {
@@ -43,6 +48,7 @@ const mockPokemons = [
     name: 'Mewtwo',
     type: ['Psychic'],
     legendary: true,
+    color: 'Purple',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png'
   },
   {
@@ -50,6 +56,7 @@ const mockPokemons = [
     name: 'Mew',
     type: ['Psychic'],
     legendary: true,
+    color: 'Purple',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png'
   },
   {
@@ -57,6 +64,7 @@ const mockPokemons = [
     name: 'Articuno',
     type: ['Ice', 'Flying'],
     legendary: true,
+    color: 'Blue',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/144.png'
   },
   {
@@ -64,6 +72,7 @@ const mockPokemons = [
     name: 'Zapdos',
     type: ['Electric', 'Flying'],
     legendary: true,
+    color: 'Yellow',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png'
   },
   {
@@ -71,6 +80,7 @@ const mockPokemons = [
     name: 'Moltres',
     type: ['Fire', 'Flying'],
     legendary: true,
+    color: 'Red',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/146.png'
   },
   {
@@ -78,6 +88,7 @@ const mockPokemons = [
     name: 'Gyarados',
     type: ['Water', 'Flying'],
     legendary: false,
+    color: 'Blue',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/130.png'
   },
   {
@@ -85,6 +96,7 @@ const mockPokemons = [
     name: 'Dragonite',
     type: ['Dragon', 'Flying'],
     legendary: false,
+    color: 'Brown',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png'
   },
   {
@@ -92,6 +104,7 @@ const mockPokemons = [
     name: 'Alakazam',
     type: ['Psychic'],
     legendary: false,
+    color: 'Purple',
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/65.png'
   }
 ];
@@ -102,32 +115,39 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/api/pokemons', (req, res) => {
-  const { name, type, legendary } = req.query;
-  
+  const { name, type, legendary, color } = req.query;
+
   let filteredPokemons = [...mockPokemons];
-  
+
   // Filter by name (case insensitive)
   if (name) {
-    filteredPokemons = filteredPokemons.filter(pokemon => 
+    filteredPokemons = filteredPokemons.filter(pokemon =>
       pokemon.name.toLowerCase().includes(name.toLowerCase())
     );
   }
-  
+
   // Filter by type (case insensitive)
   if (type) {
-    filteredPokemons = filteredPokemons.filter(pokemon => 
+    filteredPokemons = filteredPokemons.filter(pokemon =>
       pokemon.type.some(t => t.toLowerCase() === type.toLowerCase())
     );
   }
-  
+
   // Filter by legendary status
   if (legendary !== undefined) {
     const isLegendary = legendary === 'true';
-    filteredPokemons = filteredPokemons.filter(pokemon => 
+    filteredPokemons = filteredPokemons.filter(pokemon =>
       pokemon.legendary === isLegendary
     );
   }
-  
+
+  // Filter by color (case insensitive)
+  if (color) {
+    filteredPokemons = filteredPokemons.filter(pokemon =>
+      pokemon.color.toLowerCase() === color.toLowerCase()
+    );
+  }
+
   res.json({
     success: true,
     count: filteredPokemons.length,
