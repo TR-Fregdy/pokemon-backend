@@ -1,12 +1,17 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Determine the build path (use /app/public in Docker, or relative path locally)
+const buildPath = process.env.BUILD_PATH || path.join(__dirname, '../pokemon-frontend/build');
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static(buildPath));
 
 // Mock Pokemon data
 const mockPokemons = [
@@ -14,6 +19,7 @@ const mockPokemons = [
     id: 1,
     name: 'Pikachu',
     type: ['Electric'],
+    color: 'Yellow',
     legendary: false,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'
   },
@@ -21,6 +27,7 @@ const mockPokemons = [
     id: 2,
     name: 'Charizard',
     type: ['Fire', 'Flying'],
+    color: 'Red/Orange',
     legendary: false,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png'
   },
@@ -28,6 +35,7 @@ const mockPokemons = [
     id: 3,
     name: 'Blastoise',
     type: ['Water'],
+    color: 'Blue',
     legendary: false,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png'
   },
@@ -35,6 +43,7 @@ const mockPokemons = [
     id: 4,
     name: 'Venusaur',
     type: ['Grass', 'Poison'],
+    color: 'Green',
     legendary: false,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png'
   },
@@ -42,6 +51,7 @@ const mockPokemons = [
     id: 5,
     name: 'Mewtwo',
     type: ['Psychic'],
+    color: 'Purple',
     legendary: true,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png'
   },
@@ -49,6 +59,7 @@ const mockPokemons = [
     id: 6,
     name: 'Mew',
     type: ['Psychic'],
+    color: 'Pink',
     legendary: true,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png'
   },
@@ -56,6 +67,7 @@ const mockPokemons = [
     id: 7,
     name: 'Articuno',
     type: ['Ice', 'Flying'],
+    color: 'Light Blue',
     legendary: true,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/144.png'
   },
@@ -63,6 +75,7 @@ const mockPokemons = [
     id: 8,
     name: 'Zapdos',
     type: ['Electric', 'Flying'],
+    color: 'Yellow',
     legendary: true,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/145.png'
   },
@@ -70,6 +83,7 @@ const mockPokemons = [
     id: 9,
     name: 'Moltres',
     type: ['Fire', 'Flying'],
+    color: 'Red/Orange',
     legendary: true,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/146.png'
   },
@@ -77,6 +91,7 @@ const mockPokemons = [
     id: 10,
     name: 'Gyarados',
     type: ['Water', 'Flying'],
+    color: 'Blue',
     legendary: false,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/130.png'
   },
@@ -84,6 +99,7 @@ const mockPokemons = [
     id: 11,
     name: 'Dragonite',
     type: ['Dragon', 'Flying'],
+    color: 'Blue/Purple',
     legendary: false,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png'
   },
@@ -91,6 +107,7 @@ const mockPokemons = [
     id: 12,
     name: 'Alakazam',
     type: ['Psychic'],
+    color: 'Purple',
     legendary: false,
     image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/65.png'
   }
@@ -102,32 +119,39 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/api/pokemons', (req, res) => {
-  const { name, type, legendary } = req.query;
-  
+  const { name, type, color, legendary } = req.query;
+
   let filteredPokemons = [...mockPokemons];
-  
+
   // Filter by name (case insensitive)
   if (name) {
-    filteredPokemons = filteredPokemons.filter(pokemon => 
+    filteredPokemons = filteredPokemons.filter(pokemon =>
       pokemon.name.toLowerCase().includes(name.toLowerCase())
     );
   }
-  
+
   // Filter by type (case insensitive)
   if (type) {
-    filteredPokemons = filteredPokemons.filter(pokemon => 
+    filteredPokemons = filteredPokemons.filter(pokemon =>
       pokemon.type.some(t => t.toLowerCase() === type.toLowerCase())
     );
   }
-  
+
+  // Filter by color (case insensitive)
+  if (color) {
+    filteredPokemons = filteredPokemons.filter(pokemon =>
+      pokemon.color.toLowerCase() === color.toLowerCase()
+    );
+  }
+
   // Filter by legendary status
   if (legendary !== undefined) {
     const isLegendary = legendary === 'true';
-    filteredPokemons = filteredPokemons.filter(pokemon => 
+    filteredPokemons = filteredPokemons.filter(pokemon =>
       pokemon.legendary === isLegendary
     );
   }
-  
+
   res.json({
     success: true,
     count: filteredPokemons.length,
@@ -159,6 +183,20 @@ app.get('/api/types', (req, res) => {
     success: true,
     data: types.sort()
   });
+});
+
+// Get all unique colors
+app.get('/api/colors', (req, res) => {
+  const colors = [...new Set(mockPokemons.map(pokemon => pokemon.color))];
+  res.json({
+    success: true,
+    data: colors.sort()
+  });
+});
+
+// Serve React app for all other routes (SPA catch-all)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(buildPath, 'index.html'));
 });
 
 app.listen(PORT, () => {
