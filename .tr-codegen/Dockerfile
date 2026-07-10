@@ -12,6 +12,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Copy frontend build is handled by express fallback HTML
+# since frontend/build is outside the docker-backend build context
+
 # Expose port
 EXPOSE 3001
 
