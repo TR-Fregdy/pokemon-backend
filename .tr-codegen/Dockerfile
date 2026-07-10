@@ -12,6 +12,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Serve the frontend static files
+RUN if [ -d "public" ]; then echo "Frontend build found"; else echo "Frontend build not found"; fi
+
 # Expose port
 EXPOSE 3001
 
