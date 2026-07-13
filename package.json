@@ -4,6 +4,7 @@
   "description": "Backend API for Pokemon filtering application",
   "main": "server.js",
   "scripts": {
+    "prestart": "(cd ../pokemon-frontend && npm run build 2>/dev/null) || true",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "build": "esbuild server.js --bundle --platform=node --outfile=dist/server.js",
