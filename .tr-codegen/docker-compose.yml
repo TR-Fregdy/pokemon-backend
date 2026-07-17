@@ -1,13 +1,25 @@
 version: '3.8'
 
 services:
+  main_app_web:
+    build:
+      context: ../../pokemon-frontend
+      dockerfile: .tr-codegen/Dockerfile
+    image: pokemon-frontend:latest
+    ports:
+      - "3001:80"
+    networks:
+      - pokemon-network
+    depends_on:
+      - main_app_pokemon-backend
+
   main_app_pokemon-backend:
     build:
       context: ..
       dockerfile: .tr-codegen/Dockerfile
     container_name: main_app_pokemon
     ports:
-      - "3001:3001"
+      - "3002:3001"
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -18,7 +30,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - pokemon-network
 
 networks:
-  default:
-    name: pokemon-network
+  pokemon-network:
+    driver: bridge
