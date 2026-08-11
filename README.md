@@ -2,6 +2,8 @@
 
 A simple Node.js/Express API for managing and filtering Pokemon data.
 
+> **Documentation**: See [ARCHITECTURE.md](./ARCHITECTURE.md) for system design and [CLAUDE.md](./CLAUDE.md) for AI agent reference.
+
 ## Features
 
 - RESTful API endpoints for Pokemon data
