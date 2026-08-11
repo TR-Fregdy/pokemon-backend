@@ -2,6 +2,8 @@
 
 A simple Node.js/Express API for managing and filtering Pokemon data.
 
+> **Documentation**: See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture documentation and [CLAUDE.md](./CLAUDE.md) for AI agent guidance.
+
 ## Features
 
 - RESTful API endpoints for Pokemon data
@@ -96,10 +98,13 @@ docker-compose down
 pokemon-backend/
 ├── server.js          # Main application file
 ├── package.json       # Dependencies and scripts
-├── Dockerfile         # Docker configuration
-├── docker-compose.yml # Docker Compose configuration
 ├── .gitignore         # Git ignore rules
-└── README.md          # This file
+├── README.md          # This file
+├── CLAUDE.md          # AI agent guidance
+├── ARCHITECTURE.md    # Detailed architecture documentation
+└── .tr-codegen/       # Docker configuration
+    ├── Dockerfile
+    └── docker-compose.yml
 ```
 
 ## Mock Data
