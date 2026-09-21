@@ -1,17 +1,32 @@
 version: '3.8'
 
 services:
+  main_app_frontend:
+    build:
+      context: ../../pokemon-frontend
+      dockerfile: .tr-codegen/Dockerfile
+    image: pokemon-frontend:latest
+    container_name: main_app_frontend_service
+    ports:
+      - "3002:80"
+    networks:
+      - pokemon-network
+    environment:
+      - BACKEND_URL=http://main_app_pokemon:3001
+
   main_app_pokemon-backend:
     build:
       context: ..
       dockerfile: .tr-codegen/Dockerfile
     container_name: main_app_pokemon
-    ports:
-      - "3001:3001"
+    expose:
+      - "3001"
     environment:
       - NODE_ENV=production
       - PORT=3001
     restart: unless-stopped
+    networks:
+      - pokemon-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
@@ -19,6 +34,25 @@ services:
       retries: 3
       start_period: 40s
 
+  main_app:
+    image: nginx:alpine
+    container_name: main_app_router
+    ports:
+      - "3001:80"
+    networks:
+      - pokemon-network
+    volumes:
+      - /opt/codegen/workdir/workdir_codegen_20260921_115018/pokemon-backend/.tr-codegen/reverse-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - main_app_pokemon-backend
+      - main_app_frontend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
 networks:
-  default:
-    name: pokemon-network
+  pokemon-network:
+    driver: bridge
